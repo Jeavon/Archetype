@@ -28,7 +28,7 @@ namespace Archetype.Models
             return GetValue<string>(propertyAlias);
         }
 
-        public T GetValue<T>(string propertyAlias)
+        public T GetValue<T>(string propertyAlias, bool tryPropertyValueConverters = true)
         {
             var property = GetProperty(propertyAlias);
 
@@ -37,7 +37,7 @@ namespace Archetype.Models
                 return default(T);
             }
 
-            return property.GetValue<T>();
+            return property.GetValue<T>(tryPropertyValueConverters);
         }
 
         // issue 142: support default T value supplied by caller

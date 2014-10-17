@@ -29,21 +29,24 @@ namespace Archetype.Models
         [JsonProperty("hostContentType")]
         internal PublishedContentType HostContentType { get; set; }
 
-        public T GetValue<T>()
+        public T GetValue<T>(bool tryPropertyValueConverters = true)
         {
-
-            // Try Umbraco's PropertyValueConverters
-            var converters = UmbracoContext.Current != null ? PropertyValueConvertersResolver.Current.Converters : Enumerable.Empty<IPropertyValueConverter>();
-            if (converters.Any())
+            if (tryPropertyValueConverters)
             {
-                var convertedAttempt = TryConvertWithPropertyValueConverters<T>(Value, converters);
-                if (convertedAttempt.Success)
-                    return convertedAttempt.Result;
-            }
+                // Try Umbraco's PropertyValueConverters
+                var converters = UmbracoContext.Current != null
+                                     ? PropertyValueConvertersResolver.Current.Converters
+                                     : Enumerable.Empty<IPropertyValueConverter>();
+                if (converters.Any())
+                {
+                    var convertedAttempt = TryConvertWithPropertyValueConverters<T>(Value, converters);
+                    if (convertedAttempt.Success) return convertedAttempt.Result;
+                }
 
-            // If the value is of type T, just return it
-            if (Value is T)
-                return (T)Value;
+                // If the value is of type T, just return it
+                if (Value is T) return (T)Value;
+
+            }
 
             // No PropertyValueConverters matched, so try a regular type conversion
             var convertAttempt2 = Value.TryConvertTo<T>();
